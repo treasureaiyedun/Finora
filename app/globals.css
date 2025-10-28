@@ -42,7 +42,7 @@
   /* Sidebar */
   --sidebar: #ffffff;
   --sidebar-foreground: #0f172a;
-  --sidebar-primary: #2563eb;
+  --sidebar-primary: #5aa6fd;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
   --sidebar-accent-foreground: #0f172a;
@@ -50,56 +50,57 @@
   --sidebar-ring: #2563eb;
 }
 
-
 .dark {
-  --background: #0f172a;
-  --foreground: #f9fafb;
-  --card: #1e293b;
-  --card-foreground: #f9fafb;
-  --popover: #1e293b;
-  --popover-foreground: #f9fafb;
+  --background: #0b0f19; /* deep navy-black */
+  --foreground: #f8fafc;
 
-  --primary: #3b82f6; /* Brighter Blue */
+  --card: #111827;
+  --card-foreground: #f1f5f9;
+
+  --popover: #111827;
+  --popover-foreground: #f1f5f9;
+
+  --primary: #2563eb; /* rich blue */
   --primary-foreground: #ffffff;
 
-  --secondary: #334155;
-  --secondary-foreground: #f9fafb;
+  --secondary: #1e293b;
+  --secondary-foreground: #e2e8f0;
 
-  --muted: #475569;
-  --muted-foreground: #cbd5e1;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
 
-  --accent: #0ea5e9;
+  --accent: #3b82f6; /* softer accent blue */
   --accent-foreground: #ffffff;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #334155;
+  --border: #1e293b;
   --input: #1e293b;
-  --ring: #3b82f6;
+  --ring: #2563eb;
 
-  /* Chart Colors */
+  /* Chart Colors — more vibrant and distinct */
   --chart-1: #3b82f6;
-  --chart-2: #0ea5e9;
+  --chart-2: #06b6d4;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #ef4444;
 
   /* Sidebar */
-  --sidebar: #1e293b;
-  --sidebar-foreground: #f9fafb;
-  --sidebar-primary: #3b82f6;
+  --sidebar: #111827;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #2563eb;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #f9fafb;
-  --sidebar-border: #334155;
-  --sidebar-ring: #3b82f6;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #2563eb;
 }
 
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "DM Sans", "DM Sans Fallback";
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

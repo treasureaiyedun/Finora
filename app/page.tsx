@@ -1,8 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/app/components/shared"
-import { Analytics ,Dashboard, Goals, Settings, Transactions } from "@/app/components/pages"
+import { Navbar, Sidebar } from "@/app/components/shared"
+import { Analytics, DashboardPage, Goals, Settings, Transactions } from "@/app/components/pages"
+import { Inter, Outfit, Instrument_Sans,Manrope, DM_Sans } from "next/font/google";
+
+// const inter = Inter({
+//   variable: "--font-inter",
+//   subsets: ["latin"],
+// });
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+});
+
+const dm_sans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+});
 
 type PageType = "dashboard" | "transactions" | "analytics" | "goals" | "settings"
 
@@ -32,7 +53,7 @@ export default function Home() {
   const renderPage = () => {
     switch (currentPage) {
       case "dashboard":
-        return <Dashboard />
+        return <DashboardPage />
       case "transactions":
         return <Transactions />
       case "analytics":
@@ -42,15 +63,16 @@ export default function Home() {
       case "settings":
         return <Settings />
       default:
-        return <Dashboard />
+        return <DashboardPage />
     }
   }
 
   return (
-    <div className={isDark ? "dark" : ""}>
+    <div className={`${dm_sans.variable} ${isDark ? "dark" : ""}`}>
       <div className="flex h-screen bg-background text-foreground">
         <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar isDark={isDark} onThemeToggle={toggleTheme} />
           <main className="flex-1 overflow-auto">{renderPage()}</main>
         </div>
       </div>
