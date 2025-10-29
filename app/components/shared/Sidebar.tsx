@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, Wallet, BarChart3, Target, Settings } from "lucide-react"
+import { LayoutDashboard, Wallet, BarChart3, Goal, Settings } from "lucide-react"
 
 interface SidebarProps {
   currentPage: string
@@ -12,7 +12,7 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "transactions", label: "Transactions", icon: Wallet },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "goals", label: "Goals", icon: Target },
+    { id: "goals", label: "Goals", icon: Goal },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 

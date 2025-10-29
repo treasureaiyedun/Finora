@@ -1,9 +1,6 @@
 "use client"
 
 import { Card } from "@/app/components/ui/Card"
-import { Trash2 } from "lucide-react"
-import { useFinanceStore } from "@/lib/store"
-
 interface Transaction {
   id: string
   type: "income" | "expense"
@@ -18,7 +15,6 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
-  const { deleteTransaction } = useFinanceStore()
 
   const formatCurrency = (amount: number) => {
     const currency = localStorage.getItem("currency") || "₦"
@@ -58,26 +54,23 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-foreground">{transaction.category}</p>
-                  <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
+                  <p className="text-sm text-muted-foreground">{transaction.note}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <p
-                  className={`font-bold text-lg ${
-                    transaction.type === "income"
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-orange-600 dark:text-orange-400"
-                  }`}
-                >
-                  {transaction.type === "income" ? "+" : "-"}
-                  {formatCurrency(transaction.amount)}
-                </p>
-                <button
-                  onClick={() => deleteTransaction(transaction.id)}
-                  className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <p
+                    className={`font-bold text-lg ${
+                      transaction.type === "income"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-orange-600 dark:text-orange-400"
+                    }`}
+                  >
+                    {transaction.type === "income" ? "+" : "-"}
+                    {formatCurrency(transaction.amount)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
+                </div>
               </div>
             </div>
           ))

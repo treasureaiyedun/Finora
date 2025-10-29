@@ -3,11 +3,11 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/app/components/ui/Button"
-import { Input } from "@/app/components/ui/Input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/Select"
-import { Textarea } from "@/app/components/ui/Textarea"
-import { Label } from "@/app/components/ui/Label"
+import { Button } from "@/app/components/ui"
+import { Input } from "@/app/components/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui"
+import { Textarea } from "@/app/components/ui"
+import { Label } from "@/app/components/ui"
 
 interface TransactionFormProps {
   onSubmit: (data: {
@@ -70,11 +70,13 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Type</Label>
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor="type" className="text-sm font-medium">
+          Type
+        </Label>
         <Select value={type} onValueChange={(value) => setType(value as "income" | "expense")}>
-          <SelectTrigger className="w-full h-11 bg-white dark:bg-slate-800 border border-border rounded-lg">
+          <SelectTrigger id="type" className="h-10">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -84,10 +86,12 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
         </Select>
       </div>
 
-      <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Category</Label>
+      <div className="grid gap-2">
+        <Label htmlFor="category" className="text-sm font-medium">
+          Category
+        </Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-full h-11 bg-white dark:bg-slate-800 border border-border rounded-lg">
+          <SelectTrigger id="category" className="h-10">
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent>
@@ -100,42 +104,45 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
         </Select>
       </div>
 
-      <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Amount (₦)</Label>
+      <div className="grid gap-2">
+        <Label htmlFor="amount" className="text-sm font-medium">
+          Amount (₦)
+        </Label>
         <Input
+          id="amount"
           type="number"
           placeholder="0.00"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           step="0.01"
           min="0"
-          className="h-11 bg-white dark:bg-slate-800 border border-border rounded-lg"
+          className="h-10"
         />
       </div>
 
-      <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Date</Label>
-        <Input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="h-11 bg-white dark:bg-slate-800 border border-border rounded-lg"
-        />
+      <div className="grid gap-2">
+        <Label htmlFor="date" className="text-sm font-medium">
+          Date
+        </Label>
+        <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10" />
       </div>
 
-      <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Note (Optional)</Label>
+      <div className="grid gap-2">
+        <Label htmlFor="note" className="text-sm font-medium">
+          Note (Optional)
+        </Label>
         <Textarea
+          id="note"
           placeholder="Add a note about this transaction"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="bg-white dark:bg-slate-800 border border-border rounded-lg min-h-24"
+          rows={3}
         />
       </div>
 
       <Button
         type="submit"
-        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg"
+        className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg mt-2 cursor-pointer"
       >
         {submitLabel}
       </Button>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Navbar, Sidebar } from "@/app/components/shared"
-import { Analytics, DashboardPage, Goals, Settings, Transactions } from "@/app/components/pages"
+import { Analytics, DashboardPage, Goals, Settings, TransactionsPage } from "@/app/components"
 import { Inter, Outfit, Instrument_Sans,Manrope, DM_Sans } from "next/font/google";
 
 // const inter = Inter({
@@ -55,7 +55,7 @@ export default function Home() {
       case "dashboard":
         return <DashboardPage />
       case "transactions":
-        return <Transactions />
+        return <TransactionsPage />
       case "analytics":
         return <Analytics />
       case "goals":
