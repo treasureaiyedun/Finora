@@ -30,7 +30,7 @@ export function DashboardSummary({ transactions }: SummaryProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
-        title="Total Balance"
+        title="Current Balance"
         value={formatCurrency(balance)}
         description="Current balance"
         icon={Wallet}

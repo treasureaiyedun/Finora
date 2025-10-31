@@ -129,7 +129,7 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
 
       <div className="grid gap-2">
         <Label htmlFor="note" className="text-sm font-medium">
-          Note (Optional)
+          Note
         </Label>
         <Textarea
           id="note"
@@ -142,7 +142,7 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
 
       <Button
         type="submit"
-        className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg mt-2 cursor-pointer"
+        className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg mt-2 cursor-pointer"
       >
         {submitLabel}
       </Button>

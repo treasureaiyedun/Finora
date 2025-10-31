@@ -1,18 +1,28 @@
 "use client"
 
-import { Sun, Moon, User } from "lucide-react"
+import { Moon, Sun, User, Menu } from "lucide-react"
 
-interface NavbarProps {
+interface TopNavProps {
   isDark: boolean
   onThemeToggle: () => void
+  onMobileMenuClick?: () => void
 }
 
-export function Navbar({ isDark, onThemeToggle }: NavbarProps) {
+export function Navbar({ isDark, onThemeToggle, onMobileMenuClick }: TopNavProps) {
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">Welcome back!</h2>
-        <p className="text-sm text-muted-foreground">Here's your financial overview</p>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onMobileMenuClick}
+          className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={20} className="text-foreground" />
+        </button>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Welcome back!</h2>
+          <p className="text-sm text-muted-foreground">Here's your financial overview</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

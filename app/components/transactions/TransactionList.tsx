@@ -1,10 +1,5 @@
 "use client"
-
-import { useState } from "react"
-import { Card, Button } from "@/app/components/ui"
-import { Plus, Trash2, Edit2 } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/app/components/ui/Dialog"
-import { TransactionForm } from "@/app/components/transactions"
+import { Trash2, Edit2 } from "lucide-react"
 
 interface Transaction {
   id: string
@@ -18,14 +13,10 @@ interface Transaction {
 interface TransactionListProps {
   transactions: Transaction[]
   onDelete: (id: string) => void
-  onEdit: (id: string, data: Omit<Transaction, "id">) => void
-  onAdd: (data: Omit<Transaction, "id">) => void
+  onEdit: (transaction: Transaction) => void
 }
 
-export function TransactionList({ transactions, onDelete, onEdit, onAdd }: TransactionListProps) {
-  const [showForm, setShowForm] = useState(false)
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
-
+export function TransactionList({ transactions, onDelete, onEdit }: TransactionListProps) {
   const formatCurrency = (amount: number) => {
     const currency = localStorage.getItem("currency") || "₦"
     return `${currency}${amount.toLocaleString()}`
@@ -33,142 +24,132 @@ export function TransactionList({ transactions, onDelete, onEdit, onAdd }: Trans
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
-      month: "2-digit",
+      month: "short",
       day: "2-digit",
       year: "numeric",
     })
   }
 
-  const handleFormSubmit = (data: {
-    type: "income" | "expense"
-    category: string
-    amount: number
-    date: string
-    note: string
-  }) => {
-    if (editingTransaction) {
-      onEdit(editingTransaction.id, data)
-      setEditingTransaction(null)
-    } else {
-      onAdd(data)
-    }
-    setShowForm(false)
-  }
-
-  const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  const chronologicalTransactions = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   )
 
+  const sortedTransactions = [...chronologicalTransactions].reverse()
+
+  const getBalanceBeforeTransaction = (currentTransaction: Transaction) => {
+    let balance = 0
+    for (const transaction of chronologicalTransactions) {
+      if (transaction.id === currentTransaction.id) break
+      balance += transaction.type === "income" ? transaction.amount : -transaction.amount
+    }
+    return balance
+  }
+
   return (
-    <Card className="p-6 bg-white dark:bg-slate-900 border-0 shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-lg font-bold text-foreground">All Transactions</h2>
-          <p className="text-sm text-muted-foreground">Complete history of your financial activities</p>
-        </div>
+    <div className="space-y-4">
+      {sortedTransactions.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedTransactions.map((transaction) => {
+            const balanceBefore = getBalanceBeforeTransaction(transaction)
+            const balanceAfter =
+              transaction.type === "income"
+                ? balanceBefore + transaction.amount
+                : balanceBefore - transaction.amount
 
-        <Button
-          onClick={() => {
-            setEditingTransaction(null)
-            setShowForm(true)
-          }}
-          className="gap-2 bg-indigo-500 hover:bg-indigo-700 text-white font-semibold h-11 px-6 rounded-lg cursor-pointer"
-        >
-          <Plus size={20} />
-          Add Transaction
-        </Button>
-      </div>
-
-      {/* Transaction List */}
-      <div className="space-y-3">
-        {sortedTransactions.length > 0 ? (
-          sortedTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <span
-                  className={`text-xs font-semibold px-2 py-1 rounded-full w-fit ${
-                    transaction.type === "income"
-                      ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                      : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
-                  }`}
-                >
-                  {transaction.type}
-                </span>
-                <div className="flex-1">
-                  <p className="font-semibold text-foreground">{transaction.category}</p>
-                  <p className="text-sm text-muted-foreground">{transaction.note}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-end gap-1">
-                  <p
-                    className={`font-bold text-lg ${
-                      transaction.type === "income"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-orange-600 dark:text-orange-400"
-                    }`}
+            return (
+              <div
+                key={transaction.id}
+                className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 pt-4">
+                  <span
+                    className={`text-xs font-medium px-3 py-1 rounded-full capitalize ${transaction.type === "income"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                        : "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                      }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}
-                    {formatCurrency(transaction.amount)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
+                    {transaction.type}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{formatDate(transaction.date)}</span>
                 </div>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setEditingTransaction(transaction)
-                    setShowForm(true)
-                  }}
-                  className="p-2 hover:bg-indigo-600/10 rounded-lg transition-colors text-gray-600 dark:text-indigo-400 cursor-pointer"
-                  title="Edit transaction"
-                >
-                  <Edit2 size={18} />
-                </button>
+                {/* Content */}
+                <div className="px-4 pb-4 pt-3 space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Category</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {transaction.category}
+                    </p>
+                  </div>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete(transaction.id)
-                  }}
-                  className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive cursor-pointer"
-                  title="Delete transaction"
-                >
-                  <Trash2 size={18} />
-                </button>
+
+
+                  <div className="border-t border-dashed border-gray-300 dark:border-slate-800 my-2"></div>
+
+                  {/* Amount */}
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs font-medium text-muted-foreground">Amount</span>
+                    <span
+                      className={`text-lg font-bold ${transaction.type === "income"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-rose-600 dark:text-rose-400"
+                        }`}
+                    >
+                      {transaction.type === "income" ? "+" : "-"}
+                      {formatCurrency(transaction.amount)}
+                    </span>
+                  </div>
+                  {/* Note */}
+                  {transaction.note && (
+                    <div className="bg-gray-100 dark:bg-slate-800 p-2 rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-1">Note</p>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 capitalize">
+                        {transaction.note}
+                      </p>
+                    </div>
+                  )}
+                  {/* Balance Info */}
+                  <div className="flex items-center justify-between text-xs mt-3">
+                    <div>
+                      <p className="text-muted-foreground">Before</p>
+                      <p className="font-semibold text-slate-800 dark:text-slate-200">
+                        {formatCurrency(balanceBefore)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-right">After</p>
+                      <p className="font-semibold text-slate-800 dark:text-slate-200 text-right">
+                        {formatCurrency(balanceAfter)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="absolute top-10 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                  <button
+                    onClick={() => onEdit(transaction)}
+                    className="p-1.5 bg-slate-50 hover:bg-indigo-100 rounded-lg transition-colors text-indigo-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    title="Edit transaction"
+                  >
+                    <Edit2 size={15} />
+                  </button>
+                  <button
+                    onClick={() => onDelete(transaction.id)}
+                    className="p-1.5 bg-slate-50 hover:bg-rose-100 rounded-lg transition-colors text-rose-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    title="Delete transaction"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-muted-foreground text-center py-8">No transactions yet</p>
-        )}
-      </div>
-
-      {/* Add/Edit Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border border-border rounded-lg">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-foreground">
-              {editingTransaction ? "Edit Transaction" : "Add Transaction"}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              {editingTransaction
-                ? "Update your transaction details"
-                : "Record a new income or expense transaction"}
-            </DialogDescription>
-          </DialogHeader>
-          <TransactionForm
-            onSubmit={handleFormSubmit}
-            initialData={editingTransaction || undefined}
-            submitLabel={editingTransaction ? "Update Transaction" : "Add Transaction"}
-          />
-        </DialogContent>
-      </Dialog>
-    </Card>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-center py-8">No transactions yet</p>
+      )}
+    </div>
   )
 }
