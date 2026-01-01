@@ -1,8 +1,8 @@
-import IncomeChart from "@/app/components/analytics/IncomeChart"
+import {ExpensesChart, IncomeChart} from "@/app/components/analytics"
 import { Card } from "@/app/components/ui/Card"
 export function Analytics() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-3">
       <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
       <p className="text-muted-foreground">Detailed insights into your financial patterns</p>
 
@@ -10,6 +10,11 @@ export function Analytics() {
         <Card className="p-6 shadow-sm">
           <h3 className="font-bold text-lg mb-1">Income by Category</h3>
           <IncomeChart />
+        </Card>
+
+        <Card className="p-6 shadow-sm">
+          <h3 className="font-bold text-lg mb-1">Expenses by Category</h3>
+          <ExpensesChart />
         </Card>
       </div>
     </div>
