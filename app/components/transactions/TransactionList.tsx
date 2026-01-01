@@ -132,7 +132,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
   return (
     <div className="space-y-4">
       <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap gap-4 items-start md:items-center">
+        <div className="flex flex-wrap md:flex-row gap-4 items-start md:items-center">
 
           {/* Search Bar */}
           <div className="relative w-full md:max-w-md">
@@ -160,7 +160,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
           </div>
 
           {/* Filter & Sort */}
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <div className="flex justify-center flex-row gap-3 items-center">
 
             {/* Filter */}
             <div className="relative" ref={filterDropdownRef}>
@@ -171,7 +171,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                    dark:hover:bg-indigo-950/20 transition-all shadow-sm w-full sm:w-auto"
               >
                 <Filter size={16} />
-                <span>Filter By</span>
+                <span className="cursor-pointer">Filter By</span>
               </button>
 
               {filterDropdownOpen && (
@@ -185,7 +185,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                         setFilterDropdownOpen(false)
                         setSelectedFilter(option.value)
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-muted/50
+                      className={`w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-muted/50 cursor-pointer
                         ${selectedFilter === option.value ? "bg-indigo-50 font-semibold" : ""}`}
                     >
                       {option.label}
@@ -204,7 +204,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                    dark:hover:bg-indigo-950/20 transition-all shadow-sm w-full sm:w-auto"
               >
                 <SortAsc size={16} />
-                <span>Sort By</span>
+                <span className="cursor-pointer">Sort By</span>
               </button>
 
               {sortDropdownOpen && (
@@ -213,7 +213,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                   {/* sort by date */}
                   <button
                     onClick={() => setSortSubMenuOpen(sortSubMenuOpen === "date" ? null : "date")}
-                    className="w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between hover:bg-muted/40 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between hover:bg-muted/40 transition-colors cursor-pointer"
                   >
                     <span className={`${selectedSort?.field === "date" ? "text-indigo-600 font-semibold" : ""}`}>
                       Date
@@ -232,7 +232,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                           setSortDropdownOpen(false)
                           setSortSubMenuOpen(null)
                         }}
-                        className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted
+                        className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted cursor-pointer
                           ${selectedSort?.field === "date" && selectedSort?.order === "desc" ? "bg-indigo-50 font-semibold" : ""}`}
                       >
                         Newest First
@@ -246,7 +246,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                           setSortDropdownOpen(false)
                           setSortSubMenuOpen(null)
                         }}
-                        className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted
+                        className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted cursor-pointer
                           ${selectedSort?.field === "date" && selectedSort?.order === "asc" ? "bg-indigo-50 font-semibold" : ""}`}
                       >
                         Oldest First
@@ -257,7 +257,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                   {/* sort by category */}
                   <button
                     onClick={() => setSortSubMenuOpen(sortSubMenuOpen === "category" ? null : "category")}
-                    className="w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between border-t hover:bg-muted/40 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between border-t hover:bg-muted/40 transition-colors cursor-pointer"
                   >
                     <span className={`${selectedSort?.field === "category" ? "text-indigo-600 font-semibold" : ""}`}>
                       Category
@@ -277,7 +277,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                             setSortDropdownOpen(false)
                             setSortSubMenuOpen(null)
                           }}
-                          className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted
+                          className={`w-full text-left px-2 py-2 text-sm rounded hover:bg-muted cursor-pointer
                             ${selectedSort?.field === "category" && selectedCategory === cat ? "bg-indigo-50 font-semibold" : ""}`}
                         >
                           {cat}

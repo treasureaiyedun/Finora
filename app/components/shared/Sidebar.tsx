@@ -43,7 +43,7 @@ export function Sidebar({
             onClick={() => onMobileOpenChange(false)}
             className="text-sidebar-foreground hover:bg-sidebar-accent p-2 rounded-lg transition-colors"
           >
-            <X size={20} />
+            <X size={20} className="cursor-pointer" />
           </button>
         </div>
 

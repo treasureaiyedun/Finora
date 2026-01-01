@@ -17,7 +17,7 @@ export function Navbar({ isDark, onThemeToggle, onMobileMenuClick }: TopNavProps
           className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Toggle menu"
         >
-          <Menu size={20} className="text-foreground" />
+          <Menu size={20} className="text-foreground cursor-pointer" />
         </button>
         <div>
           <h2 className="text-lg font-semibold text-foreground">Welcome back!</h2>
