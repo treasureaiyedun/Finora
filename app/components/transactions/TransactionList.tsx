@@ -294,7 +294,16 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
         </div>
       </div>
 
-{processedTransactions.length > 0 ? (
+      {transactions.length === 0 ? (
+        <div className="text-center py-10 space-y-2">
+          <p className="text-muted-foreground text-lg">
+            No transactions yet
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Create a new transaction to get started
+          </p>
+        </div>
+      ) : processedTransactions.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-border shadow-sm">
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
@@ -310,14 +319,15 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
               {processedTransactions.map((transaction, index) => (
                 <tr
                   key={transaction.id}
-                  className={`border-b border-border ${index % 2 === 0 ? "bg-background" : "bg-muted/30"} hover:bg-muted/50 transition-colors cursor-pointer`}
+                  className={`border-b border-border ${index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                    } hover:bg-muted/50 transition-colors cursor-pointer`}
                   onClick={() => setSelectedTransaction(transaction)}
                 >
                   <td className="py-2.5 px-4">
                     <span
                       className={`text-xs font-semibold px-2.5 py-1 rounded-full ${transaction.type === "income"
-                        ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                        : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+                          ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                          : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
                         }`}
                     >
                       {transaction.type}
@@ -328,8 +338,8 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                   </td>
                   <td
                     className={`py-2.5 px-4 text-sm font-semibold ${transaction.type === "income"
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-orange-600 dark:text-orange-400"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-orange-600 dark:text-orange-400"
                       }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}
@@ -339,18 +349,19 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                     {formatDate(transaction.date)}
                   </td>
                   <td className="py-2.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex items-center justify-end gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={() => onEdit(transaction)}
                         className="p-1.5 hover:bg-indigo-600/10 rounded-lg transition-colors text-indigo-600 dark:text-indigo-400"
-                        title="Edit transaction"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
                         onClick={() => onDelete(transaction.id)}
                         className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
-                        title="Delete transaction"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -362,8 +373,11 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
           </table>
         </div>
       ) : (
-        <p className="text-muted-foreground text-center py-8">No transactions match your filters</p>
+        <p className="text-muted-foreground text-center py-8">
+          No transactions match your filters
+        </p>
       )}
+
 
       <Dialog open={!!selectedTransaction} onOpenChange={(open) => !open && setSelectedTransaction(null)}>
         <DialogContent className="max-w-sm">
