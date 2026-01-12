@@ -357,13 +357,13 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                         onClick={() => onEdit(transaction)}
                         className="p-1.5 hover:bg-indigo-600/10 rounded-lg transition-colors text-indigo-600 dark:text-indigo-400"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={16} className="cursor-pointer"/>
                       </button>
                       <button
                         onClick={() => onDelete(transaction.id)}
                         className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} className="cursor-pointer"/>
                       </button>
                     </div>
                   </td>

@@ -1,6 +1,8 @@
-import {ExpensesChart, IncomeChart} from "@/app/components/analytics"
+import { BalanceTrend, ExpensesChart, IncomeChart } from "@/app/components/analytics"
 import { Card } from "@/app/components/ui/Card"
+import { useFinanceStore } from "@/lib/store"
 export function Analytics() {
+  const { transactions } = useFinanceStore()
   return (
     <div className="p-6 space-y-3">
       <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
@@ -17,6 +19,8 @@ export function Analytics() {
           <ExpensesChart />
         </Card>
       </div>
+
+      <BalanceTrend transactions={transactions} />
     </div>
   )
 }
