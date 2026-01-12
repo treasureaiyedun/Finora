@@ -47,11 +47,12 @@ export function StatCard({
       style={{ borderLeft: `4px solid ${styles.borderColor}` }}
     >
       <div className="flex flex-col gap-2">
-        {/* Title and icon on the same line */}
+        {/* Title + Icon */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+          <p className="text-sm text-muted-foreground font-medium">
             {title}
           </p>
+
           <div
             className="p-2 rounded-lg"
             style={{ backgroundColor: styles.iconBorderColor }}
@@ -60,8 +61,18 @@ export function StatCard({
           </div>
         </div>
 
-        {/* Value and description below */}
-        <p className="text-2xl font-bold text-foreground">{value}</p>
+        {/* Value with hover tooltip */}
+        <div className="relative group max-w-full">
+          <p className="text-2xl font-bold text-foreground truncate cursor-default">
+            {value}
+          </p>
+
+          <div className="absolute left-0 top-full z-10 mt-1 hidden max-w-xs rounded-md bg-slate-900 px-2 py-1 text-sm text-white shadow-md group-hover:block">
+            {value}
+          </div>
+        </div>
+
+        {/* Description */}
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </Card>
