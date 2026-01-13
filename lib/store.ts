@@ -25,6 +25,7 @@ interface FinanceStore {
   updateTransaction: (id: string, transaction: Omit<Transaction, "id">) => void
   deleteTransaction: (id: string) => void
   addGoal: (goal: Omit<Goal, "id">) => void
+  updateGoal: (id: string, goal: Omit<Goal, "id">) => void
   deleteGoal: (id: string) => void
   clearAllData: () => void
 }
@@ -61,6 +62,10 @@ export const useFinanceStore = create<FinanceStore>()(
               id: Date.now().toString(),
             },
           ],
+        })),
+      updateGoal: (id, goal) =>
+        set((state) => ({
+          goals: state.goals.map((g) => (g.id === id ? { ...goal, id } : g)),
         })),
       deleteGoal: (id) =>
         set((state) => ({
