@@ -17,9 +17,10 @@ interface GoalCardProps {
   onDelete: () => void
   onEdit: () => void
   onUpdateProgress?: (amount: number) => void
+  onViewDetails?: () => void
 }
 
-export function GoalCard({ goal, onDelete, onEdit, onUpdateProgress }: GoalCardProps) {
+export function GoalCard({ goal, onDelete, onEdit, onUpdateProgress, onViewDetails }: GoalCardProps) {
   const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100)
   const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0)
 
@@ -39,7 +40,10 @@ export function GoalCard({ goal, onDelete, onEdit, onUpdateProgress }: GoalCardP
   const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
 
   return (
-    <Card className="p-6 bg-white dark:bg-slate-900 border-0 shadow-sm">
+    <Card
+      onClick={onViewDetails}
+      className="p-6 bg-white dark:bg-slate-900 border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+    >
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className="text-lg font-bold text-foreground">{goal.title}</h3>
@@ -48,12 +52,21 @@ export function GoalCard({ goal, onDelete, onEdit, onUpdateProgress }: GoalCardP
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={onEdit} className="p-2 hover:bg-indigo-600/10 rounded-lg transition-colors text-indigo-600 cursor-pointer">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit()
+            }}
+            className="p-2 hover:bg-indigo-600/10 rounded-lg transition-colors text-indigo-600"
+          >
             <Edit2 size={18} />
           </button>
           <button
-            onClick={onDelete}
-            className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete()
+            }}
+            className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
           >
             <Trash2 size={18} />
           </button>
@@ -70,25 +83,39 @@ export function GoalCard({ goal, onDelete, onEdit, onUpdateProgress }: GoalCardP
         </div>
 
         <div className="grid grid-cols-3 gap-3 text-sm">
-          <div>
+          <div className="min-w-0">
             <p className="text-muted-foreground text-xs">Current</p>
-            <p className="font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            <p
+              className="font-bold text-emerald-600 dark:text-emerald-400 mt-1 truncate"
+              title={formatCurrency(goal.currentAmount)} // Tooltip
+            >
               {formatCurrency(goal.currentAmount)}
             </p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-muted-foreground text-xs">Target</p>
-            <p className="font-bold text-foreground mt-1">{formatCurrency(goal.targetAmount)}</p>
+            <p
+              className="font-bold text-foreground mt-1 truncate"
+              title={formatCurrency(goal.targetAmount)} // Tooltip
+            >
+              {formatCurrency(goal.targetAmount)}
+            </p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-muted-foreground text-xs">Remaining</p>
-            <p className="font-bold text-orange-600 dark:text-orange-400 mt-1">{formatCurrency(remaining)}</p>
+            <p
+              className="font-bold text-orange-600 dark:text-orange-400 mt-1 truncate"
+              title={formatCurrency(remaining)} // Tooltip
+            >
+              {formatCurrency(remaining)}
+            </p>
           </div>
         </div>
 
         <div className="pt-4 border-t border-border">
           <label className="text-sm font-medium text-muted-foreground block mb-2">Update Progress</label>
           <input
+            onClick={(e) => e.stopPropagation()}
             type="number"
             placeholder="Enter amount"
             defaultValue=""

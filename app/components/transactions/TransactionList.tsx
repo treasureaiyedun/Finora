@@ -36,6 +36,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const [sortSubMenuOpen, setSortSubMenuOpen] = useState<SortField | null>(null)
+  const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null)
 
   const [selectedSort, setSelectedSort] = useState<null | { field: string; order?: "asc" | "desc" }>(null)
   const [selectedFilter, setSelectedFilter] = useState<"all" | "income" | "expense" | null>("all") // default "all"
@@ -326,8 +327,8 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                   <td className="py-2.5 px-4">
                     <span
                       className={`text-xs font-semibold px-2.5 py-1 rounded-full ${transaction.type === "income"
-                          ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                          : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+                        ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                        : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
                         }`}
                     >
                       {transaction.type}
@@ -338,8 +339,8 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                   </td>
                   <td
                     className={`py-2.5 px-4 text-sm font-semibold ${transaction.type === "income"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-orange-600 dark:text-orange-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-orange-600 dark:text-orange-400"
                       }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}
@@ -357,14 +358,15 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                         onClick={() => onEdit(transaction)}
                         className="p-1.5 hover:bg-indigo-600/10 rounded-lg transition-colors text-indigo-600 dark:text-indigo-400"
                       >
-                        <Edit2 size={16} className="cursor-pointer"/>
+                        <Edit2 size={16} className="cursor-pointer" />
                       </button>
                       <button
-                        onClick={() => onDelete(transaction.id)}
+                        onClick={() => setDeleteConfirmation(transaction.id)}
                         className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
                       >
-                        <Trash2 size={16} className="cursor-pointer"/>
+                        <Trash2 size={16} className="cursor-pointer" />
                       </button>
+
                     </div>
                   </td>
                 </tr>
@@ -450,6 +452,37 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
             </div>
           )}
         </DialogContent>
-      </Dialog>    </div>
+      </Dialog>
+
+      <Dialog open={!!deleteConfirmation} onOpenChange={(open) => !open && setDeleteConfirmation(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Transaction</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-foreground">Are you sure you want to delete this transaction?</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirmation(null)}
+                className="px-4 py-2 rounded-lg border border-border hover:bg-muted/50 transition-colors text-foreground font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteConfirmation) {
+                    onDelete(deleteConfirmation)
+                    setDeleteConfirmation(null)
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-destructive hover:bg-destructive/90 transition-colors text-destructive-foreground font-medium"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

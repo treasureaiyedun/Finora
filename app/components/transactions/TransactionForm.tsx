@@ -3,11 +3,11 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/app/components/ui"
-import { Input } from "@/app/components/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui"
-import { Textarea } from "@/app/components/ui"
-import { Label } from "@/app/components/ui"
+import { Button } from "@/app/components/ui/Button"
+import { Input } from "@/app/components/ui/Input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/Select"
+import { Textarea } from "@/app/components/ui/Textarea"
+import { Label } from "@/app/components/ui/Label"
 
 interface TransactionFormProps {
   onSubmit: (data: {
@@ -38,6 +38,7 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
   const [amount, setAmount] = useState(initialData?.amount?.toString() || "")
   const [date, setDate] = useState(initialData?.date || new Date().toISOString().split("T")[0])
   const [note, setNote] = useState(initialData?.note || "")
+  const [currency, setCurrency] = useState("₦")
 
   useEffect(() => {
     if (initialData) {
@@ -48,6 +49,19 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
       setNote(initialData.note)
     }
   }, [initialData])
+
+  useEffect(() => {
+    const saved = localStorage.getItem("currency")
+    if (saved) setCurrency(saved)
+
+    const handleCurrencyChange = () => {
+      const updated = localStorage.getItem("currency")
+      if (updated) setCurrency(updated)
+    }
+
+    window.addEventListener("currencyChanged", handleCurrencyChange)
+    return () => window.removeEventListener("currencyChanged", handleCurrencyChange)
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,8 +119,21 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
       </div>
 
       <div className="grid gap-2">
+        <Label htmlFor="note" className="text-sm font-medium">
+          Note (Optional)
+        </Label>
+        <Textarea
+          id="note"
+          placeholder="Add a note about this transaction"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={3}
+        />
+      </div>
+
+      <div className="grid gap-2">
         <Label htmlFor="amount" className="text-sm font-medium">
-          Amount (₦)
+          Amount ({currency})
         </Label>
         <Input
           id="amount"
@@ -127,22 +154,9 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
         <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10" />
       </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="note" className="text-sm font-medium">
-          Note
-        </Label>
-        <Textarea
-          id="note"
-          placeholder="Add a note about this transaction"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={3}
-        />
-      </div>
-
       <Button
         type="submit"
-        className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg mt-2 cursor-pointer"
+        className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg mt-2"
       >
         {submitLabel}
       </Button>

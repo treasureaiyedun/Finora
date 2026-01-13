@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/Button"
 import { Input } from "@/app/components/ui/Input"
 import { Label } from "@/app/components/ui/Label"
@@ -27,6 +27,20 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
   const [targetAmount, setTargetAmount] = useState(initialData?.targetAmount.toString() || "")
   const [currentAmount, setCurrentAmount] = useState(initialData?.currentAmount.toString() || "")
   const [deadline, setDeadline] = useState(initialData?.deadline || "")
+  const [currency, setCurrency] = useState("₦")
+
+  useEffect(() => {
+    const saved = localStorage.getItem("currency")
+    if (saved) setCurrency(saved)
+
+    const handleCurrencyChange = () => {
+      const updated = localStorage.getItem("currency")
+      if (updated) setCurrency(updated)
+    }
+
+    window.addEventListener("currencyChanged", handleCurrencyChange)
+    return () => window.removeEventListener("currencyChanged", handleCurrencyChange)
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,7 +73,7 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
       </div>
 
       <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Target Amount (₦)</Label>
+        <Label className="text-base font-semibold text-foreground mb-3 block">Target Amount ({currency})</Label>
         <Input
           type="number"
           placeholder="0.00"
@@ -72,7 +86,7 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
       </div>
 
       <div>
-        <Label className="text-base font-semibold text-foreground mb-3 block">Current Amount (₦)</Label>
+        <Label className="text-base font-semibold text-foreground mb-3 block">Current Amount ({currency})</Label>
         <Input
           type="number"
           placeholder="0.00"
@@ -96,7 +110,7 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
 
       <Button
         type="submit"
-        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg cursor-pointer"
+        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg"
       >
         {initialData ? "Update Goal" : "Create Goal"}
       </Button>
