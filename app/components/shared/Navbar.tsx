@@ -1,6 +1,7 @@
 "use client"
 
 import { Moon, Sun, User, Menu } from "lucide-react"
+import UserMenu from "./UserMenu"
 
 interface TopNavProps {
   isDark: boolean
@@ -34,9 +35,7 @@ export function Navbar({ isDark, onThemeToggle, onMobileMenuClick }: TopNavProps
           {isDark ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} className="text-slate-600" />}
         </button>
 
-        <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-          <User size={20} className="text-foreground" />
-        </button>
+        <UserMenu />
       </div>
     </header>
   )
