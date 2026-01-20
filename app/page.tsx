@@ -2,35 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { Navbar, Sidebar } from "@/app/components/shared"
-import { Analytics, DashboardPage, Goals, Settings, TransactionsPage } from "@/app/components"
-import { Inter, Outfit, Instrument_Sans,Manrope, DM_Sans } from "next/font/google";
-
-// const inter = Inter({
-//   variable: "--font-inter",
-//   subsets: ["latin"],
-// });
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const dm_sans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-});
-
+import { Analytics, Dashboard, Goals, Settings, Transactions } from "@/app/components"
 type PageType = "dashboard" | "transactions" | "analytics" | "goals" | "settings"
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<PageType>("dashboard")
   const [isDark, setIsDark] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -79,9 +56,9 @@ export default function Home() {
   const renderPage = () => {
     switch (currentPage) {
       case "dashboard":
-        return <DashboardPage />
+        return <Dashboard/>
       case "transactions":
-        return <TransactionsPage />
+        return <Transactions/>
       case "analytics":
         return <Analytics />
       case "goals":
@@ -89,7 +66,7 @@ export default function Home() {
       case "settings":
         return <Settings />
       default:
-        return <DashboardPage />
+        return <Dashboard/>
     }
   }
 

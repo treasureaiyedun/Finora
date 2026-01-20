@@ -6,7 +6,7 @@ import { RecentTransactions } from "@/app/components/dashboard"
 import { SpendingChart } from "@/app/components/dashboard"
 import { useFinanceStore } from "@/lib/store"
 
-export function DashboardPage() {
+export function Dashboard() {
   const { transactions } = useFinanceStore()
   const [mounted, setMounted] = useState(false)
 

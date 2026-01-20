@@ -137,8 +137,8 @@ export default function Settings() {
                                     key={curr}
                                     onClick={() => handleCurrencyChange(curr)}
                                     className={`px-4 py-2 rounded-lg border transition cursor-pointer ${currency === curr
-                                        ? "bg-indigo-500 text-white border-indigo-500"
-                                        : "bg-muted hover:border-indigo-500"
+                                            ? "bg-indigo-500 text-white border-indigo-500"
+                                            : "bg-muted hover:border-indigo-500"
                                         }`}
                                 >
                                     {curr}
@@ -216,26 +216,18 @@ export default function Settings() {
 
             {/* Delete Modal */}
             {showDeleteModal && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                    onClick={() => setShowDeleteModal(false)} // ✅ click outside
-                >
-                    <div
-                        className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 relative"
-                        onClick={(e) => e.stopPropagation()} // ✅ prevent close on modal click
-                    >
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 relative">
                         <button
                             onClick={() => setShowDeleteModal(false)}
                             className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
                         >
                             <X className="w-5 h-5" />
                         </button>
-
                         <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
                         <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
                             Are you sure you want to delete your account? This action cannot be undone.
                         </p>
-
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowDeleteModal(false)}
@@ -243,7 +235,6 @@ export default function Settings() {
                             >
                                 Cancel
                             </button>
-
                             <button
                                 onClick={handleDeleteAccount}
                                 className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition cursor-pointer"
@@ -256,29 +247,20 @@ export default function Settings() {
                 </div>
             )}
 
-
             {/* Logout Modal */}
             {showLogoutModal && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                    onClick={() => setShowLogoutModal(false)} // ✅ click outside
-                >
-                    <div
-                        className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 relative"
-                        onClick={(e) => e.stopPropagation()} // ✅ prevent close on modal click
-                    >
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 relative">
                         <button
                             onClick={() => setShowLogoutModal(false)}
                             className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
                         >
                             <X className="w-5 h-5" />
                         </button>
-
                         <h3 className="text-lg font-semibold mb-4">Confirm Logout</h3>
                         <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
                             Are you sure you want to log out?
                         </p>
-
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowLogoutModal(false)}
@@ -286,7 +268,6 @@ export default function Settings() {
                             >
                                 Cancel
                             </button>
-
                             <button
                                 onClick={handleLogout}
                                 className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition cursor-pointer"
@@ -298,7 +279,6 @@ export default function Settings() {
                     </div>
                 </div>
             )}
-
         </div>
     )
 }

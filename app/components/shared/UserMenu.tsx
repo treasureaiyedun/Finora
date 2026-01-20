@@ -1,8 +1,12 @@
 "use client"
 
+import React from "react"
 import { useState, useRef, useEffect } from "react"
-import { LogOut, Settings, UserCircle } from "lucide-react"
+import { LogOut, Settings, UserCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence, PanInfo } from "framer-motion"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
 type User = {
   name: string
@@ -11,13 +15,33 @@ type User = {
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false)
-
-  const [user] = useState<User>({
-    name: "Treasure Aiyedun",
-    email: "treasure@finora.app",
-  })
-
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const router = useRouter()
   const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        
+        if (authUser) {
+          setUser({
+            name: authUser.user_metadata?.name || authUser.email?.split("@")[0] || "User",
+            email: authUser.email || "",
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -37,12 +61,30 @@ export default function UserMenu() {
     }
   }, [])
 
-  const handleLogout = () => {
-    console.log("Logging out...")
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      router.push("/auth/login")
+    } catch (error) {
+      console.error("Error logging out:", error)
+      setIsLoggingOut(false)
+    }
   }
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     if (info.offset.y > 100) setOpen(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center animate-pulse" />
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
@@ -53,7 +95,7 @@ export default function UserMenu() {
         className="h-9 w-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold shadow-sm hover:scale-105 transition cursor-pointer"
         aria-label="User menu"
       >
-        {user.name.charAt(0)}
+        {user.name.charAt(0).toUpperCase()}
       </button>
 
       {/* Desktop Dropdown */}
@@ -66,7 +108,7 @@ export default function UserMenu() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <MenuContent user={user} onLogout={handleLogout} />
+            <MenuContent user={user} onLogout={handleLogout} isLoggingOut={isLoggingOut} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -93,7 +135,7 @@ export default function UserMenu() {
               onDragEnd={handleDragEnd}
               onClick={(e) => e.stopPropagation()}
             >
-              <MenuContent user={user} onLogout={handleLogout} />
+              <MenuContent user={user} onLogout={handleLogout} isLoggingOut={isLoggingOut} />
             </motion.div>
           </motion.div>
         )}
@@ -105,9 +147,11 @@ export default function UserMenu() {
 function MenuContent({
   user,
   onLogout,
+  isLoggingOut
 }: {
   user: { name: string; email: string }
   onLogout: () => void
+  isLoggingOut: boolean
 }) {
   return (
     <>
@@ -126,8 +170,12 @@ function MenuContent({
 
       {/* Actions */}
       <div className="p-2 space-y-1">
-        <MenuItem icon={<UserCircle size={18} />} label="Profile" />
-        <MenuItem icon={<Settings size={18} />} label="Settings" />
+        <Link href="/profile">
+          <MenuItem icon={<UserCircle size={18} />} label="Profile"/>
+        </Link>
+        <Link href="/settings" className="">
+        <MenuItem icon={<Settings size={18} />} label="Settings"/>
+        </Link>
       </div>
 
       <div className="h-px bg-border" />
@@ -135,10 +183,11 @@ function MenuContent({
       {/* Logout */}
       <button
         onClick={onLogout}
-        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition"
+        disabled={isLoggingOut}
+        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
-        <LogOut size={18} />
-        Log out
+        {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
+        {isLoggingOut ? "Logging out..." : "Log out"}
       </button>
     </>
   )
@@ -146,7 +195,7 @@ function MenuContent({
 
 function MenuItem({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
+    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition text-sm cursor-pointer">
       {icon}
       {label}
     </button>

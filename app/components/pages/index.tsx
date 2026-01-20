@@ -1,7 +1,7 @@
 export { Analytics } from "./Analytics"
-export { DashboardPage } from "./Dashboard"
+export { Dashboard} from "./Dashboard"
 export { Goals } from "./Goals"
 export { default as NotFound } from "./NotFound"
-export { Settings } from "./Settings"
-export { TransactionsPage } from "./Transactions"
+export { default as Settings } from "./Settings"
+export { Transactions } from "./Transactions"
 

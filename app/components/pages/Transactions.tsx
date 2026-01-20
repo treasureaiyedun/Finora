@@ -17,7 +17,7 @@ interface Transaction {
   note: string
 }
 
-export function TransactionsPage() {
+export function Transactions() {
   const { transactions, addTransaction, updateTransaction, deleteTransaction } = useFinanceStore()
   const [showForm, setShowForm] = useState(false)
   const [mounted, setMounted] = useState(false)
