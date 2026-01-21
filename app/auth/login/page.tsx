@@ -1,17 +1,18 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card } from "@/app/components/ui/Card"
 import { Button } from "@/app/components/ui/Button"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -50,6 +51,7 @@ export default function LoginPage() {
       )}
 
       <form onSubmit={handleLogin} className="space-y-4">
+        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">Email</label>
           <input
@@ -62,26 +64,40 @@ export default function LoginPage() {
           />
         </div>
 
-        <div>
+        <div className="relative">
           <label className="block text-sm font-medium text-foreground mb-2">Password</label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2 pr-10 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
             placeholder="••••••••"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-9 text-muted-foreground cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white">
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+        >
           {loading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don't have an account?{" "}
-        <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 cursor-pointer font-medium">
+        <Link
+          href="/auth/signup"
+          className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+        >
           Sign up
         </Link>
       </p>

@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react"
 import { Navbar, Sidebar } from "@/app/components/shared"
 import { Analytics, Dashboard, Goals, Settings, Transactions } from "@/app/components"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+
 type PageType = "dashboard" | "transactions" | "analytics" | "goals" | "settings"
 
 export default function Home() {
@@ -11,15 +14,33 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isLoading, setIsLoading] = useState(true) 
+  const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const checkVisitor = async () => {
+      const hasVisited = localStorage.getItem("hasVisitedBefore")
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!hasVisited) {
+        localStorage.setItem("hasVisitedBefore", "true")
+        router.push("/auth/signup")
+      } else if (!session) {
+        router.push("/auth/login")
+      }
+
+      setIsLoading(false) 
+    }
+    checkVisitor()
+  }, [router, supabase])
 
   useEffect(() => {
     setIsMounted(true)
     const handleResize = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
-      if (!mobile) {
-        setSidebarOpen(false)
-      }
+      if (!mobile) setSidebarOpen(false)
     }
 
     handleResize()
@@ -48,17 +69,15 @@ export default function Home() {
 
   const handlePageChange = (page: PageType) => {
     setCurrentPage(page)
-    if (isMobile) {
-      setSidebarOpen(false)
-    }
+    if (isMobile) setSidebarOpen(false)
   }
 
   const renderPage = () => {
     switch (currentPage) {
       case "dashboard":
-        return <Dashboard/>
+        return <Dashboard />
       case "transactions":
-        return <Transactions/>
+        return <Transactions />
       case "analytics":
         return <Analytics />
       case "goals":
@@ -66,9 +85,16 @@ export default function Home() {
       case "settings":
         return <Settings />
       default:
-        return <Dashboard/>
+        return <Dashboard />
     }
   }
+
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-screen bg-background text-foreground">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
 
   return (
     <div className={isDark ? "dark" : ""}>
@@ -83,10 +109,17 @@ export default function Home() {
           />
         )}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
         )}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar isDark={isDark} onThemeToggle={toggleTheme} onMobileMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+          <Navbar
+            isDark={isDark}
+            onThemeToggle={toggleTheme}
+            onMobileMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          />
           <main className="flex-1 overflow-auto">{renderPage()}</main>
         </div>
       </div>
