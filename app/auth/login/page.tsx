@@ -101,6 +101,9 @@ export default function LoginPage() {
           Sign up
         </Link>
       </p>
+       <p className="mt-4 text-sm text-center text-blue-600">
+        <Link href="/auth/forgot-password">Forgot Password?</Link>
+      </p>
     </Card>
   )
 }
