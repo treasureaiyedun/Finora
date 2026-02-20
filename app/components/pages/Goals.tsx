@@ -4,11 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/Button"
 import { GoalCard, GoalForm } from "@/app/components/goals/"
 import { useFinanceStore } from "@/lib/store"
-import { Plus, X } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/app/components/ui/Dialog"
 
 export function Goals() {
-  const { goals, addGoal, deleteGoal, updateGoal } = useFinanceStore()
+  const { goals, addGoal, deleteGoal, updateGoal, fetchGoals } = useFinanceStore()
   const [showForm, setShowForm] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [editingGoal, setEditingGoal] = useState<string | null>(null)
@@ -16,23 +16,24 @@ export function Goals() {
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    fetchGoals()
+  }, [fetchGoals])
 
   if (!mounted) return null
 
-  const handleUpdateProgress = (goalId: string, amount: number) => {
+  const handleUpdateProgress = async (goalId: string, amount: number) => {
     const goal = goals.find((g) => g.id === goalId)
     if (goal) {
-      updateGoal(goalId, {
+      await updateGoal(goalId, {
         ...goal,
         currentAmount: goal.currentAmount + amount,
       })
     }
   }
 
-  const handleEditSubmit = (data: any) => {
+  const handleEditSubmit = async (data: any) => {
     if (editingGoal) {
-      updateGoal(editingGoal, data)
+      await updateGoal(editingGoal, data)
       setEditingGoal(null)
       setShowForm(false)
     }
@@ -96,11 +97,11 @@ export function Goals() {
                   }
                 : undefined
             }
-            onSubmit={(data) => {
+            onSubmit={async (data) => {
               if (editingGoal) {
-                handleEditSubmit(data)
+                await handleEditSubmit(data)
               } else {
-                addGoal(data)
+                await addGoal(data)
                 setShowForm(false)
               }
             }}

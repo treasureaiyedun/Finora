@@ -13,10 +13,7 @@ export default function ForgotPassword() {
     setLoading(true)
     setMessage("")
 
-    const redirectUrl =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/auth/reset-password"
-        : "https://finora-gilt.vercel.app/auth/reset-password"
+    const redirectUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/reset-password`
 
     const { error } = await createClient().auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl

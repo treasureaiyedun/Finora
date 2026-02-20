@@ -15,6 +15,8 @@ export default function Settings() {
     const [isLoggingOut, setIsLoggingOut] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [showLogoutModal, setShowLogoutModal] = useState(false)
+    const [deletePassword, setDeletePassword] = useState("")
+    const [deleteError, setDeleteError] = useState("")
 
     useEffect(() => {
         const prefersDark = localStorage.getItem("theme") === "dark"
@@ -47,25 +49,32 @@ export default function Settings() {
     }
 
     const handleDeleteAccount = async () => {
+        setDeleteError("")
+        if (!deletePassword) {
+            setDeleteError("Password is required")
+            return
+        }
+
         setIsDeleting(true)
         try {
-            const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
+            const response = await fetch("/api/auth/delete-account", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: deletePassword }),
+            })
 
-            const response = await fetch("/api/auth/delete-account", { method: "POST" })
+            const data = await response.json()
+
             if (response.ok) {
-                await supabase.auth.signOut()
-                router.push("/auth/login")
+                router.push("/auth/login?deleted=true")
             } else {
-                alert("Failed to delete account")
+                setDeleteError(data.error || "Failed to delete account")
             }
         } catch (error) {
             console.error("Error deleting account:", error)
-            alert("Error deleting account")
+            setDeleteError("An error occurred while deleting your account")
         } finally {
             setIsDeleting(false)
-            setShowDeleteModal(false)
         }
     }
 
@@ -218,27 +227,54 @@ export default function Settings() {
             {showDeleteModal && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                    onClick={() => setShowDeleteModal(false)} // ✅ click outside
+                    onClick={() => {
+                        setShowDeleteModal(false)
+                        setDeletePassword("")
+                        setDeleteError("")
+                    }}
                 >
                     <div
                         className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 relative"
-                        onClick={(e) => e.stopPropagation()} // ✅ prevent close on modal click
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            onClick={() => setShowDeleteModal(false)}
+                            onClick={() => {
+                                setShowDeleteModal(false)
+                                setDeletePassword("")
+                                setDeleteError("")
+                            }}
                             className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
                         >
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-                        <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
-                            Are you sure you want to delete your account? This action cannot be undone.
+                        <h3 className="text-lg font-semibold mb-4">Delete Account</h3>
+                        <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                            This action cannot be undone. All your data will be permanently deleted. Enter your password to confirm:
                         </p>
+
+                        <input
+                            type="password"
+                            placeholder="Enter your password"
+                            value={deletePassword}
+                            onChange={(e) => {
+                                setDeletePassword(e.target.value)
+                                setDeleteError("")
+                            }}
+                            className="w-full px-3 py-2 mb-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                        />
+
+                        {deleteError && (
+                            <p className="text-sm text-red-600 dark:text-red-400 mb-4">{deleteError}</p>
+                        )}
 
                         <div className="flex justify-end gap-3">
                             <button
-                                onClick={() => setShowDeleteModal(false)}
+                                onClick={() => {
+                                    setShowDeleteModal(false)
+                                    setDeletePassword("")
+                                    setDeleteError("")
+                                }}
                                 className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
                             >
                                 Cancel
@@ -246,10 +282,10 @@ export default function Settings() {
 
                             <button
                                 onClick={handleDeleteAccount}
-                                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition cursor-pointer"
-                                disabled={isDeleting}
+                                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isDeleting || !deletePassword}
                             >
-                                {isDeleting ? "Deleting..." : "Delete"}
+                                {isDeleting ? "Deleting..." : "Delete Account"}
                             </button>
                         </div>
                     </div>

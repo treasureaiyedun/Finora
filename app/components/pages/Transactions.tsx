@@ -18,18 +18,19 @@ interface Transaction {
 }
 
 export function Transactions() {
-  const { transactions, addTransaction, updateTransaction, deleteTransaction } = useFinanceStore()
+  const { transactions, addTransaction, updateTransaction, deleteTransaction, fetchTransactions, error } = useFinanceStore()
   const [showForm, setShowForm] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    fetchTransactions()
+  }, [fetchTransactions])
 
   if (!mounted) return null
 
-  const handleFormSubmit = (data: {
+  const handleFormSubmit = async (data: {
     type: "income" | "expense"
     category: string
     amount: number
@@ -37,10 +38,10 @@ export function Transactions() {
     note: string
   }) => {
     if (editingTransaction) {
-      updateTransaction(editingTransaction.id, data)
+      await updateTransaction(editingTransaction.id, data)
       setEditingTransaction(null)
     } else {
-      addTransaction(data)
+      await addTransaction(data)
     }
     setShowForm(false)
   }

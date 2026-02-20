@@ -119,19 +119,6 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="note" className="text-sm font-medium">
-          Note (Optional)
-        </Label>
-        <Textarea
-          id="note"
-          placeholder="Add a note about this transaction"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={3}
-        />
-      </div>
-
-      <div className="grid gap-2">
         <Label htmlFor="amount" className="text-sm font-medium">
           Amount ({currency})
         </Label>
@@ -144,6 +131,7 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
           step="0.01"
           min="0"
           className="h-10"
+          required
         />
       </div>
 
@@ -151,12 +139,33 @@ export function TransactionForm({ onSubmit, initialData, submitLabel = "Add Tran
         <Label htmlFor="date" className="text-sm font-medium">
           Date
         </Label>
-        <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10" />
+        <Input 
+          id="date" 
+          type="date" 
+          value={date} 
+          onChange={(e) => setDate(e.target.value)} 
+          className="h-10"
+          required
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="note" className="text-sm font-medium">
+          Note (Optional)
+        </Label>
+        <Textarea
+          id="note"
+          placeholder="Add a note about this transaction"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={3}
+        />
       </div>
 
       <Button
         type="submit"
-        className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg mt-2"
+        disabled={!category || !amount}
+        className="w-full h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg mt-2"
       >
         {submitLabel}
       </Button>

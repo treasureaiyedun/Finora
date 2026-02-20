@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/Button"
 import { Input } from "@/app/components/ui/Input"
@@ -53,10 +52,12 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
       deadline,
     })
 
-    setTitle("")
-    setTargetAmount("")
-    setCurrentAmount("")
-    setDeadline("")
+    if (!initialData) {
+      setTitle("")
+      setTargetAmount("")
+      setCurrentAmount("")
+      setDeadline("")
+    }
   }
 
   return (
@@ -69,6 +70,7 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="h-11 bg-white dark:bg-slate-800 border border-border rounded-lg text-base"
+          required
         />
       </div>
 
@@ -82,6 +84,7 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
           step="0.01"
           min="0"
           className="h-11 bg-white dark:bg-slate-800 border border-border rounded-lg text-base"
+          required
         />
       </div>
 
@@ -105,12 +108,14 @@ export function GoalForm({ onSubmit, initialData }: GoalFormProps) {
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
           className="h-11 bg-white dark:bg-slate-800 border border-border rounded-lg text-base"
+          required
         />
       </div>
 
       <Button
         type="submit"
-        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg"
+        disabled={!title || !targetAmount || !deadline}
+        className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg"
       >
         {initialData ? "Update Goal" : "Create Goal"}
       </Button>

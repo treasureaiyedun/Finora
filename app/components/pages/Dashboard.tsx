@@ -7,12 +7,14 @@ import { SpendingChart } from "@/app/components/dashboard"
 import { useFinanceStore } from "@/lib/store"
 
 export function Dashboard() {
-  const { transactions } = useFinanceStore()
+  const { transactions, fetchTransactions, fetchGoals } = useFinanceStore()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    fetchTransactions()
+    fetchGoals()
+  }, [fetchTransactions, fetchGoals])
 
   if (!mounted) return null
 

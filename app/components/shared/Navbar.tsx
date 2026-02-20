@@ -32,7 +32,7 @@ export function Navbar({ isDark, onThemeToggle, onMobileMenuClick }: TopNavProps
           className="p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Toggle theme"
         >
-          {isDark ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} className="text-slate-600" />}
+          {isDark ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} className="text-slate-600 cursor-pointer" />}
         </button>
 
         <UserMenu />

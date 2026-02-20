@@ -19,21 +19,8 @@ export default function Home() {
   const supabase = createClient()
 
   useEffect(() => {
-    const checkVisitor = async () => {
-      const hasVisited = localStorage.getItem("hasVisitedBefore")
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (!hasVisited) {
-        localStorage.setItem("hasVisitedBefore", "true")
-        router.push("/auth/signup")
-      } else if (!session) {
-        router.push("/auth/login")
-      }
-
-      setIsLoading(false) 
-    }
-    checkVisitor()
-  }, [router, supabase])
+    setIsLoading(false) 
+  }, [])
 
   useEffect(() => {
     setIsMounted(true)
