@@ -28,13 +28,12 @@
       ]
     }
   },
-  "include": [
-    "**/*.mts",
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-, "app/components/emails/VerifyEmail.tsx"  ],
+"include": [
+  "**/*.mts",
+  "**/*.ts",
+  "**/*.tsx",
+  "next-env.d.ts"
+],
   "exclude": [
     "node_modules"
   ]
