@@ -14,26 +14,38 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [isLoading, setIsLoading] = useState(true) 
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
+  // Auth check first — prevents dashboard flash before login redirect
   useEffect(() => {
-    setIsLoading(false) 
-  }, [])
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        const hasAccount = typeof window !== "undefined" ? localStorage.getItem("finora_has_account") : null
+        router.replace(hasAccount ? "/auth/login" : "/auth/signup")
+        return
+      }
+      // Active session = existing account; ensure flag is set
+      localStorage.setItem("finora_has_account", "true")
+      setIsAuthChecked(true)
+    }
+    checkSession()
+  }, [supabase, router])
 
   useEffect(() => {
+    if (!isAuthChecked) return
     setIsMounted(true)
     const handleResize = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
       if (!mobile) setSidebarOpen(false)
     }
-
     handleResize()
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  }, [isAuthChecked])
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
@@ -62,7 +74,7 @@ export default function Home() {
   const renderPage = () => {
     switch (currentPage) {
       case "dashboard":
-        return <Dashboard />
+        return <Dashboard onNavigate={handlePageChange} />
       case "transactions":
         return <Transactions />
       case "analytics":
@@ -72,20 +84,22 @@ export default function Home() {
       case "settings":
         return <Settings />
       default:
-        return <Dashboard />
+        return <Dashboard onNavigate={handlePageChange} />
     }
   }
 
-  if (isLoading)
+  // Show spinner while checking auth — prevents dashboard flash
+  if (!isAuthChecked) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background text-foreground">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
+  }
 
   return (
     <div className={isDark ? "dark" : ""}>
-      <div className="flex h-screen bg-background text-foreground">
+      <div className="flex min-h-screen bg-background text-foreground">
         {isMounted && (
           <Sidebar
             currentPage={currentPage}
@@ -101,13 +115,15 @@ export default function Home() {
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar
-            isDark={isDark}
-            onThemeToggle={toggleTheme}
-            onMobileMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          />
-          <main className="flex-1 overflow-auto">{renderPage()}</main>
+        <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+          <div className="sticky top-0 z-30">
+            <Navbar
+              isDark={isDark}
+              onThemeToggle={toggleTheme}
+              onMobileMenuClick={() => setSidebarOpen(!sidebarOpen)}
+            />
+          </div>
+          <main className="flex-1">{renderPage()}</main>
         </div>
       </div>
     </div>

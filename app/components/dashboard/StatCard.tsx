@@ -43,13 +43,13 @@ export function StatCard({
 
   return (
     <Card
-      className="p-4 bg-white dark:bg-slate-900 border-0 shadow-sm hover:shadow-md transition-shadow"
+      className="p-3 sm:p-4 bg-white dark:bg-slate-900 border-0 shadow-sm hover:shadow-md transition-shadow"
       style={{ borderLeft: `4px solid ${styles.borderColor}` }}
     >
       <div className="flex flex-col gap-2">
         {/* Title + Icon */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground font-medium">
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium">
             {title}
           </p>
 
@@ -63,7 +63,7 @@ export function StatCard({
 
         {/* Value with hover tooltip */}
         <div className="relative group max-w-full">
-          <p className="text-2xl font-bold text-foreground truncate cursor-default">
+          <p className="text-lg sm:text-2xl font-bold text-foreground truncate cursor-default">
             {value}
           </p>
 

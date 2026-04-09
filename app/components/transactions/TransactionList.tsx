@@ -71,11 +71,11 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    })
+    const d = new Date(dateString)
+    const day = String(d.getDate()).padStart(2, "0")
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const year = d.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
   const processedTransactions = useMemo(() => {
@@ -186,8 +186,10 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                         setFilterDropdownOpen(false)
                         setSelectedFilter(option.value)
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-muted/50 cursor-pointer
-                        ${selectedFilter === option.value ? "bg-indigo-50 font-semibold" : ""}`}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors
+                        ${selectedFilter === option.value
+                          ? "bg-indigo-500 text-white font-semibold"
+                          : "hover:bg-muted/50 text-foreground"}`}
                     >
                       {option.label}
                     </button>

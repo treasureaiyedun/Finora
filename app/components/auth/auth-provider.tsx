@@ -24,11 +24,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession()
         if (!session) {
-          router.push("/auth/login")
+          // Check if user has previously created an account
+          const hasAccount = localStorage.getItem("finora_has_account")
+          if (hasAccount) {
+            router.replace("/auth/login")
+          } else {
+            router.replace("/auth/signup")
+          }
+        } else {
+          // Active session = existing account; ensure the flag is set
+          localStorage.setItem("finora_has_account", "true")
         }
       } catch (error) {
         console.error("Auth check failed:", error)
-        router.push("/auth/login")
+        router.replace("/auth/login")
       } finally {
         setIsLoading(false)
       }
@@ -39,8 +48,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.push("/auth/login")
+      if (!session && !pathname.startsWith("/auth")) {
+        const hasAccount = localStorage.getItem("finora_has_account")
+        router.replace(hasAccount ? "/auth/login" : "/auth/signup")
       }
     })
 
@@ -51,10 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent"></div>
-          <p className="mt-4 text-foreground">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading Finora...</p>
         </div>
       </div>
     )

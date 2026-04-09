@@ -12,9 +12,10 @@ interface Transaction {
 
 interface RecentTransactionsProps {
   transactions: Transaction[]
+  onSeeMore?: () => void
 }
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions, onSeeMore }: RecentTransactionsProps) {
 
   const formatCurrency = (amount: number) => {
     const currency = localStorage.getItem("currency") || "₦"
@@ -22,11 +23,11 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    })
+    const d = new Date(dateString)
+    const day = String(d.getDate()).padStart(2, "0")
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const year = d.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
   return (
@@ -111,6 +112,17 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
           <p className="text-muted-foreground text-center py-8 text-sm sm:text-base">No transactions yet</p>
         )}
       </div>
+
+      {onSeeMore && transactions.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <button
+            onClick={onSeeMore}
+            className="w-full py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-lg transition-colors"
+          >
+            See More Transactions →
+          </button>
+        </div>
+      )}
     </Card>
   )
 }

@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { createClient as createBrowserClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/app/components/ui/Button"
 import { Card } from "@/app/components/ui/Card"
 import { Input } from "@/app/components/ui/Input"
-import { ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff, Check, X } from "lucide-react"
 import Link from "next/link"
 
 type User = {
@@ -47,11 +47,9 @@ export default function ProfilePage() {
     confirmPassword: "",
   })
 
-  // Success modal
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [successModalMessage, setSuccessModalMessage] = useState("")
 
-  // Fetch User
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -68,7 +66,8 @@ export default function ProfilePage() {
           id: authUser.id,
           email: authUser.email || "",
           name:
-            authUser.user_metadata?.name ||
+            authUser.user_metadata?.first_name ||
+            authUser.user_metadata?.name?.split(" ")[0] ||
             authUser.email?.split("@")[0] ||
             "",
           created_at: authUser.created_at,
@@ -76,7 +75,8 @@ export default function ProfilePage() {
 
         setFormData({
           name:
-            authUser.user_metadata?.name ||
+            authUser.user_metadata?.first_name ||
+            authUser.user_metadata?.name?.split(" ")[0] ||
             authUser.email?.split("@")[0] ||
             "",
           email: authUser.email || "",
@@ -91,29 +91,28 @@ export default function ProfilePage() {
     fetchUser()
   }, [router, supabase])
 
-  //password validation
-  useEffect(() => {
-    if (!showPasswordForm) return
+  const passwordRules = useMemo(() => {
+    const p = passwordData.newPassword
+    return [
+      { label: "At least 8 characters",       met: p.length >= 8 },
+      { label: "One uppercase letter (A–Z)",   met: /[A-Z]/.test(p) },
+      { label: "One lowercase letter (a–z)",   met: /[a-z]/.test(p) },
+      { label: "One number (0–9)",             met: /[0-9]/.test(p) },
+      { label: "One special character (!@#…)", met: /[^A-Za-z0-9]/.test(p) },
+    ]
+  }, [passwordData.newPassword])
 
-    if (passwordData.newPassword.length > 0 && passwordData.newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters long")
-    } else if (
-      passwordData.confirmPassword &&
-      passwordData.newPassword !== passwordData.confirmPassword
-    ) {
-      setPasswordError("Passwords do not match")
-    } else {
-      setPasswordError(null)
-    }
-  }, [passwordData, showPasswordForm])
+  const allRulesMet = passwordRules.every((r) => r.met)
+  const passwordsMatch =
+    passwordData.confirmPassword === "" ||
+    passwordData.newPassword === passwordData.confirmPassword
 
-  // Update Display Name
   const handleUpdateDisplayName = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsUpdating(true)
 
     const { error } = await supabase.auth.updateUser({
-      data: { name: formData.name },
+      data: { first_name: formData.name, name: formData.name },
     })
 
     if (error) {
@@ -128,14 +127,35 @@ export default function ProfilePage() {
     setIsUpdating(false)
   }
 
-  // Change Password
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || passwordError) return
+    if (!user) return
+
+    // Field-level validation with descriptive messages
+    if (!passwordData.currentPassword) {
+      setPasswordError("Please enter your current password")
+      return
+    }
+    if (!passwordData.newPassword) {
+      setPasswordError("Please enter a new password")
+      return
+    }
+    if (!allRulesMet) {
+      setPasswordError("Your new password doesn't meet all the requirements")
+      return
+    }
+    if (!passwordData.confirmPassword) {
+      setPasswordError("Please confirm your new password")
+      return
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("Passwords do not match")
+      return
+    }
 
     setIsChangingPassword(true)
+    setPasswordError(null)
 
-    // Verify current password
     const { error: verifyError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: passwordData.currentPassword,
@@ -201,11 +221,13 @@ export default function ProfilePage() {
               <p className="text-foreground mt-1">{user.email}</p>
               <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
             </div>
-
             <div>
               <label className="text-sm font-medium text-muted-foreground">Account Created</label>
               <p className="text-foreground mt-1">
-                {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
+                {user.created_at ? (() => {
+                  const d = new Date(user.created_at)
+                  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`
+                })() : "—"}
               </p>
             </div>
           </div>
@@ -223,14 +245,13 @@ export default function ProfilePage() {
                 placeholder="Enter your name"
               />
             </div>
-
             <Button type="submit" disabled={isUpdating} className="cursor-pointer w-full">
               {isUpdating ? (
                 <>
                   <Loader2 className="animate-spin mr-2" size={18} />
                   Updating...
                 </>
-              ) : "Update Profile"}
+              ) : "Update Display Name"}
             </Button>
           </form>
         </Card>
@@ -248,16 +269,20 @@ export default function ProfilePage() {
 
               {/* Current Password */}
               <div className="relative">
+                <label className="block text-sm font-medium mb-1.5 text-foreground">Current Password</label>
                 <Input
                   type={showPasswords.current ? "text" : "password"}
-                  placeholder="Current Password"
+                  placeholder="Enter current password"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, currentPassword: e.target.value })
+                    setPasswordError(null)
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
-                  className="absolute right-3 top-3 cursor-pointer"
+                  className="absolute right-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
                 >
                   {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -265,42 +290,83 @@ export default function ProfilePage() {
 
               {/* New Password */}
               <div className="relative">
+                <label className="block text-sm font-medium mb-1.5 text-foreground">New Password</label>
                 <Input
                   type={showPasswords.new ? "text" : "password"}
-                  placeholder="New Password"
+                  placeholder="Enter new password"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, newPassword: e.target.value })
+                    setPasswordError(null)
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
-                  className="absolute right-3 top-3 cursor-pointer"
+                  className="absolute right-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
                 >
                   {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
+              {/* Live requirements checklist */}
+              {passwordData.newPassword.length > 0 && (
+                <ul className="space-y-1.5 bg-muted/40 rounded-lg p-3">
+                  {passwordRules.map((rule) => (
+                    <li key={rule.label} className="flex items-center gap-2 text-sm">
+                      {rule.met
+                        ? <Check size={14} className="text-emerald-500 shrink-0" />
+                        : <X size={14} className="text-red-400 shrink-0" />}
+                      <span className={rule.met ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                        {rule.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
               {/* Confirm Password */}
               <div className="relative">
+                <label className="block text-sm font-medium mb-1.5 text-foreground">Confirm New Password</label>
                 <Input
                   type={showPasswords.confirm ? "text" : "password"}
-                  placeholder="Confirm New Password"
+                  placeholder="Re-enter new password"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                    setPasswordError(null)
+                  }}
+                  className={
+                    passwordData.confirmPassword
+                      ? passwordsMatch
+                        ? "border-emerald-500 focus-visible:ring-emerald-500"
+                        : "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
-                  className="absolute right-3 top-3 cursor-pointer"
+                  className="absolute right-3 top-9 cursor-pointer text-muted-foreground hover:text-foreground"
                 >
                   {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
+                {passwordData.confirmPassword && !passwordsMatch && (
+                  <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                )}
+                {passwordData.confirmPassword && passwordsMatch && (
+                  <p className="text-xs text-emerald-500 mt-1">Passwords match</p>
+                )}
               </div>
 
               {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={isChangingPassword} className="flex-1 cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="flex-1 cursor-pointer"
+                >
                   {isChangingPassword ? (
                     <>
                       <Loader2 className="animate-spin mr-2" size={18} />
@@ -309,11 +375,16 @@ export default function ProfilePage() {
                   ) : "Change Password"}
                 </Button>
 
-                <Button type="button" variant="secondary" onClick={() => {
-                  setShowPasswordForm(false)
-                  setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
-                  setPasswordError(null)
-                }} className="flex-1 cursor-pointer">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setShowPasswordForm(false)
+                    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
+                    setPasswordError(null)
+                  }}
+                  className="flex-1 cursor-pointer"
+                >
                   Cancel
                 </Button>
               </div>

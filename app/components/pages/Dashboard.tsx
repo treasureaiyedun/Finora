@@ -6,7 +6,11 @@ import { RecentTransactions } from "@/app/components/dashboard"
 import { SpendingChart } from "@/app/components/dashboard"
 import { useFinanceStore } from "@/lib/store"
 
-export function Dashboard() {
+interface DashboardProps {
+  onNavigate?: (page: "transactions") => void
+}
+
+export function Dashboard({ onNavigate }: DashboardProps) {
   const { transactions, fetchTransactions, fetchGoals } = useFinanceStore()
   const [mounted, setMounted] = useState(false)
 
@@ -19,12 +23,15 @@ export function Dashboard() {
   if (!mounted) return null
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <DashboardSummary transactions={transactions} />
 
       <SpendingChart transactions={transactions} />
 
-      <RecentTransactions transactions={transactions.slice(0, 5)} />
+      <RecentTransactions
+        transactions={transactions.slice(0, 5)}
+        onSeeMore={onNavigate ? () => onNavigate("transactions") : undefined}
+      />
     </div>
   )
 }

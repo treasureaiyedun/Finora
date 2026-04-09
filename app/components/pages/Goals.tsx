@@ -48,18 +48,18 @@ export function Goals() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
+    const d = new Date(dateString)
+    const day = String(d.getDate()).padStart(2, "0")
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const year = d.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Financial Goals</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Financial Goals</h1>
           <p className="text-muted-foreground mt-1">Set and track your savings goals</p>
         </div>
         <Button
@@ -67,7 +67,7 @@ export function Goals() {
             setEditingGoal(null)
             setShowForm(true)
           }}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 px-6 rounded-lg cursor-pointer"
+          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 px-6 rounded-lg cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus size={20} />
           Add Goal

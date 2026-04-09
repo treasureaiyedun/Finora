@@ -2,62 +2,97 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import Link from "next/link"
+import { Card } from "@/app/components/ui/Card"
+import { Button } from "@/app/components/ui/Button"
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage("")
+    setError("")
 
-    const redirectUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/reset-password`
+    const redirectUrl = `${window.location.origin}/auth/callback?type=recovery`
 
     const { error } = await createClient().auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl
+      redirectTo: redirectUrl,
     })
 
     setLoading(false)
+
     if (error) {
-      setMessage(error.message)
+      setError(error.message)
     } else {
-      setMessage("✅ Check your email for the reset link.")
+      setSent(true)
+      setMessage("Check your email for the reset link.")
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
-          Forgot Password
-        </h2>
+    <Card className="w-full max-w-md p-8 bg-white dark:bg-slate-900 border-0 shadow-lg">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Finora</h1>
+        <p className="text-muted-foreground">Reset your password</p>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
+      {sent ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg text-sm">
+            {message} Click the link in the email to set a new password.
+          </div>
+          <p className="text-sm text-center text-muted-foreground">
+            Didn't receive it?{" "}
+            <button
+              onClick={() => { setSent(false); setEmail("") }}
+              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+            >
+              Try again
+            </button>
+          </p>
+        </div>
+      ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            required
-          />
-          <button
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <Button
             type="submit"
-            className={`w-full p-3 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition cursor-pointer ${
-              loading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
             disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white cursor-pointer"
           >
             {loading ? "Sending..." : "Send Reset Link"}
-          </button>
+          </Button>
         </form>
-        {message && (
-          <p className="mt-4 text-center text-sm text-green-500 dark:text-green-400">
-            {message}
-          </p>
-        )}
-      </div>
-    </div>
+      )}
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Remember your password?{" "}
+        <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer">
+          Sign in
+        </Link>
+      </p>
+    </Card>
   )
 }

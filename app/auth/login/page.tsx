@@ -28,6 +28,9 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
+        // Mark that this device has a registered account so future
+        // unauthenticated visits go to login, not signup
+        localStorage.setItem("finora_has_account", "true")
         router.push("/")
       }
     } catch (err: any) {
@@ -96,12 +99,12 @@ export default function LoginPage() {
         Don't have an account?{" "}
         <Link
           href="/auth/signup"
-          className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+        className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
         >
           Sign up
         </Link>
       </p>
-       <p className="mt-4 text-sm text-center text-blue-600">
+      <p className="mt-4 text-sm text-center text-blue-600">
         <Link href="/auth/forgot-password">Forgot Password?</Link>
       </p>
     </Card>

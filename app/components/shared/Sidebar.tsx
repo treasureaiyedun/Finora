@@ -80,7 +80,7 @@ export function Sidebar({
 
   // Desktop view
   return (
-    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
+    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col sticky top-0 h-screen self-start">
       <div className="p-6 border-b border-sidebar-border flex items-center gap-2">
         <h1 className="text-xl font-bold text-sidebar-foreground">Finora</h1>
       </div>

@@ -29,7 +29,7 @@ export default function UserMenu() {
         
         if (authUser) {
           setUser({
-            name: authUser.user_metadata?.name || authUser.email?.split("@")[0] || "User",
+            name: authUser.user_metadata?.first_name || authUser.user_metadata?.name?.split(" ")[0] || authUser.email?.split("@")[0] || "User",
             email: authUser.email || "",
           })
         }
