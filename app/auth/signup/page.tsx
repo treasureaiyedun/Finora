@@ -23,6 +23,33 @@ export default function SignupPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const BLOCKED_DOMAINS = [
+    "test.com", "example.com", "example.org", "example.net",
+    "mailinator.com", "guerrillamail.com", "guerrillamail.net",
+    "guerrillamail.org", "guerrillamail.de", "guerrillamail.info",
+    "sharklasers.com", "guerrillamailblock.com", "grr.la",
+    "spam4.me", "trashmail.com", "trashmail.me", "trashmail.net",
+    "trashmail.at", "trashmail.io", "trashmail.org",
+    "yopmail.com", "yopmail.fr", "cool.fr.nf", "jetable.fr.nf",
+    "nospam.ze.tc", "nomail.xl.cx", "mega.zik.dj", "speed.1s.fr",
+    "courriel.fr.nf", "moncourrier.fr.nf", "monemail.fr.nf",
+    "monmail.fr.nf", "tempmail.com", "temp-mail.org", "tmpmail.net",
+    "tmpmail.org", "throwam.com", "throwam.org", "throwam.net",
+    "dispostable.com", "fakeinbox.com", "mailnull.com",
+    "maildrop.cc", "spamgourmet.com", "spamgourmet.net",
+    "spamgourmet.org", "notreal.com", "notanemail.com",
+    "nowhere.com", "fake.com", "invalid.com", "noemail.com",
+    "noreply.com", "domain.com", "email.com", "abc.com",
+    "xyz.com", "foo.com", "bar.com", "baz.com", "qux.com",
+    "asdf.com", "test.net", "test.org", "testing.com",
+    "sample.com", "dummy.com", "placeholder.com",
+  ]
+
+  const isBlockedDomain = (email: string): boolean => {
+    const domain = email.split("@")[1]?.toLowerCase()
+    return !!domain && BLOCKED_DOMAINS.includes(domain)
+  }
+
   // Live password rules
   const passwordRules = useMemo(() => [
     { label: "At least 8 characters",        met: password.length >= 8 },
@@ -46,6 +73,10 @@ export default function SignupPage() {
     }
     if (password !== confirmPassword) {
       setError("Passwords do not match")
+      return
+    }
+    if (isBlockedDomain(email)) {
+      setError("Please use a real, active email address. Placeholder or disposable domains are not accepted.")
       return
     }
 
@@ -112,7 +143,7 @@ export default function SignupPage() {
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 capitalize"
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="John"
               required
             />
@@ -123,7 +154,7 @@ export default function SignupPage() {
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 capitalize"
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Doe"
               required
             />
@@ -137,10 +168,17 @@ export default function SignupPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={`w-full px-4 py-2 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              email && isBlockedDomain(email) ? "border-red-500" : "border-border"
+            }`}
             placeholder="you@example.com"
             required
           />
+          {email && isBlockedDomain(email) && (
+            <p className="text-xs text-red-500 mt-1">
+              Please use a real, active email address.
+            </p>
+          )}
         </div>
 
         {/* Password */}
@@ -217,7 +255,7 @@ export default function SignupPage() {
 
         <Button
           type="submit"
-          disabled={loading || !allRulesMet || !passwordsMatch || !confirmPassword}
+          disabled={loading || !allRulesMet || !passwordsMatch || !confirmPassword || isBlockedDomain(email)}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white cursor-pointer"
         >
           {loading ? "Creating account..." : "Sign Up"}
@@ -233,4 +271,3 @@ export default function SignupPage() {
     </Card>
   )
 }
-
