@@ -11,8 +11,11 @@ export default function ResetPassword() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [ready, setReady] = useState(false)       // session confirmed from recovery link
-  const [invalid, setInvalid] = useState(false)   // link is broken / already used
+  // "checking" while we wait for the recovery event
+  // "ready"    once PASSWORD_RECOVERY fires — show the form
+  // "invalid"  if we time out with no recovery event and no session
+  const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking")
+
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -21,50 +24,32 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  // Supabase recovery emails use a hash fragment (#access_token=...&type=recovery)
-  // The client SDK picks this up automatically via onAuthStateChange
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    let timeout: ReturnType<typeof setTimeout>
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        // Valid recovery session — show the form
-        setReady(true)
-      } else if (event === "SIGNED_IN" && session) {
-        // Already signed in normally — not a recovery flow
-        // Only mark ready if we came from a recovery link (check hash)
-        const hash = window.location.hash
-        if (hash.includes("type=recovery")) {
-          setReady(true)
-        }
+        clearTimeout(timeout)
+        setStatus("ready")
       }
     })
 
-    // Also check immediately in case the event already fired
-    const checkSession = async () => {
-      const hash = window.location.hash
-      if (hash.includes("type=recovery") || hash.includes("access_token")) {
-        // Give onAuthStateChange a moment to fire
-        setTimeout(async () => {
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session) {
-            setReady(true)
-          } else {
-            setInvalid(true)
-          }
-        }, 500)
+    // Fallback: if the server-side callback already exchanged the token and
+    // established a session before this page loaded, there's no event to catch.
+    // In that case check for an existing session after a short delay.
+    timeout = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setStatus("ready")
       } else {
-        // No hash — came here directly, not via email link
-        const { data: { session } } = await supabase.auth.getSession()
-        // If there's a recovery session already established (via server callback), allow it
-        if (session) {
-          setReady(true)
-        } else {
-          setInvalid(true)
-        }
+        setStatus("invalid")
       }
-    }
+    }, 1500)
 
-    checkSession()
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [supabase])
 
   const passwordRules = useMemo(() => [
@@ -82,8 +67,8 @@ export default function ResetPassword() {
     e.preventDefault()
     setError("")
 
-    if (!allRulesMet) { setError("Please meet all password requirements"); return }
-    if (!confirmPassword) { setError("Please confirm your new password"); return }
+    if (!allRulesMet)      { setError("Please meet all password requirements"); return }
+    if (!confirmPassword)  { setError("Please confirm your new password"); return }
     if (password !== confirmPassword) { setError("Passwords do not match"); return }
 
     setLoading(true)
@@ -95,12 +80,12 @@ export default function ResetPassword() {
     } else {
       await supabase.auth.signOut()
       setSuccess(true)
-      setTimeout(() => router.push("/auth/login"), 2500)
+      setTimeout(() => router.replace("/auth/login"), 2500)
     }
   }
 
-  // Loading state while we wait for the session check
-  if (!ready && !invalid) {
+  // Checking validity of the reset link, or waiting for the recovery event to fire
+  if (status === "checking") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -111,13 +96,16 @@ export default function ResetPassword() {
     )
   }
 
-  // Invalid / expired link
-  if (invalid) {
+  // Invalid / expired link 
+  if (status === "invalid") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md p-8 bg-white dark:bg-slate-900 border-0 shadow-lg text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto">
+            <X size={28} className="text-red-500" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground">Link Expired</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             This password reset link is invalid or has already been used.
             Please request a new one.
           </p>
@@ -132,7 +120,7 @@ export default function ResetPassword() {
     )
   }
 
-  // Success state
+  // Success 
   if (success) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -141,7 +129,7 @@ export default function ResetPassword() {
             <Check size={28} className="text-emerald-600 dark:text-emerald-400" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Password Updated</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             Your password has been changed successfully. Redirecting to login...
           </p>
         </Card>
@@ -149,6 +137,7 @@ export default function ResetPassword() {
     )
   }
 
+  // Reset form
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md p-8 bg-white dark:bg-slate-900 border-0 shadow-lg">
@@ -164,6 +153,8 @@ export default function ResetPassword() {
         )}
 
         <form onSubmit={handleReset} className="space-y-4">
+
+          {/* New Password */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">New Password</label>
             <div className="relative">
@@ -197,6 +188,7 @@ export default function ResetPassword() {
             )}
           </div>
 
+          {/* Confirm Password */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Confirm Password</label>
             <div className="relative">
@@ -205,7 +197,9 @@ export default function ResetPassword() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className={`w-full px-4 py-2 pr-10 rounded-lg border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  confirmPassword ? (passwordsMatch ? "border-emerald-500" : "border-red-500") : "border-border"
+                  confirmPassword
+                    ? passwordsMatch ? "border-emerald-500" : "border-red-500"
+                    : "border-border"
                 }`}
                 placeholder="••••••••"
                 required
@@ -228,11 +222,10 @@ export default function ResetPassword() {
             disabled={loading || !allRulesMet || !passwordsMatch || !confirmPassword}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white cursor-pointer"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 size={16} className="animate-spin" /> Updating password...
-              </span>
-            ) : "Reset Password"}
+            {loading
+              ? <span className="flex items-center justify-center gap-2"><Loader2 size={16} className="animate-spin" /> Updating...</span>
+              : "Reset Password"
+            }
           </Button>
         </form>
       </Card>
