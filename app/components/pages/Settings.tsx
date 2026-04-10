@@ -6,7 +6,11 @@ import Link from "next/link"
 import { ArrowLeft, Moon, Sun, Palette, Bell, Lock, Trash2, LogOut, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-export default function Settings() {
+interface SettingsProps {
+  onNavigate?: (page: "dashboard" | "transactions" | "analytics" | "goals" | "settings") => void
+}
+
+export default function Settings({ onNavigate }: SettingsProps) {
     const router = useRouter()
     const [isDarkMode, setIsDarkMode] = useState(false)
     const [currency, setCurrency] = useState("₦")
@@ -97,9 +101,9 @@ export default function Settings() {
             <div className="max-w-2xl mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <Link href="/" className="p-2 hover:bg-muted rounded-lg transition">
+                    <button onClick={() => onNavigate?.("dashboard")} className="p-2 hover:bg-muted rounded-lg transition cursor-pointer">
                         <ArrowLeft className="w-5 h-5" />
-                    </Link>
+                    </button>
                     <h1 className="text-3xl font-bold font-heading">Settings</h1>
                 </div>
 

@@ -146,4 +146,35 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Prevent iOS/Android from zooming into inputs on focus.
+     Browsers zoom when font-size < 16px — this enforces 16px on mobile
+     and scales back to 14px on desktop where zoom is not a concern. */
+  input,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="tel"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  @media (min-width: 768px) {
+    input,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="search"],
+    textarea,
+    select {
+      font-size: 0.875rem !important; /* 14px */
+    }
+  }
 }

@@ -82,7 +82,7 @@ export default function Home() {
       case "goals":
         return <Goals />
       case "settings":
-        return <Settings />
+        return <Settings onNavigate={(page) => setCurrentPage(page)} />
       default:
         return <Dashboard onNavigate={handlePageChange} />
     }
