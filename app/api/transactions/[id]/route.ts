@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
+const toISO = (date: string): string => {
+  if (!date) return date
+  if (date.includes("-")) return date
+  const [d, m, y] = date.split("/")
+  return `${y}-${m}-${d}`
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
@@ -55,6 +62,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         { error: "Type must be 'income' or 'expense'" },
         { status: 400 }
       )
+    }
+
+    if (updates.date) {
+      updates.date = toISO(updates.date)
     }
 
     const { data, error } = await supabase

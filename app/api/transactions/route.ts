@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
+const toISO = (date: string): string => {
+  if (!date) return date
+  if (date.includes("-")) return date
+  const [d, m, y] = date.split("/")
+  return `${y}-${m}-${d}`
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -44,7 +51,6 @@ export async function POST(request: NextRequest) {
 
     const { type, category, amount, date, note } = await request.json()
 
-    // Validate required fields
     if (!type || !category || amount === undefined || !date) {
       return NextResponse.json(
         { error: "Missing required fields: type, category, amount, date" },
@@ -52,7 +58,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate field types and values
     if (!["income", "expense"].includes(type)) {
       return NextResponse.json(
         { error: "Type must be 'income' or 'expense'" },
@@ -75,7 +80,7 @@ export async function POST(request: NextRequest) {
           type,
           category,
           amount,
-          date,
+          date: toISO(date),
           note: note || null,
         },
       ])
